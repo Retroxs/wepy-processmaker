@@ -1,0 +1,15 @@
+{
+	"description": "A WePY project",
+	"setting": {
+		"urlCheck": false,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true
+	},
+	"compileType": "miniprogram",
+	"appid": "wxefea4ecd0f12b5c3",
+	"projectname": "wepy-processmaker",
+	"miniprogramRoot": "./dist",
+	"condition": {}
+}

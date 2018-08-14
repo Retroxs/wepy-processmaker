@@ -1,0 +1,35 @@
+<template>
+  <view wx:if="{{hasData}}">
+    <view wx:for="{{unassignedList}}" class="zf-card">
+      <i-card title="{{item.caseTitle}}" extra="{{item.caseNumber}}">
+        <view slot="content" style="white-space:pre-wrap">{{item.process.name}}-{{item.task.name}}\n{{item.date}}
+        </view>
+        <view slot="footer">{{item.prevUser.fullName}}</view>
+      </i-card>
+    </view>
+  </view>
+  <view wx:else>
+    <i-load-more tip="暂无数据" loading="{{ false }}" />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+
+  import { connect } from 'wepy-redux';
+
+  @connect({
+      unassignedList(state) {
+        return state.counter.unassignedList;
+      }
+    }
+  )
+  export default class Unassigned extends wepy.component {
+    computed = {
+      hasData() {
+        if (this.unassignedList && this.unassignedList.length === 0) return false;
+        else return true;
+      }
+    };
+  }
+</script>

@@ -1,0 +1,38 @@
+<template>
+  <i-card title="卡片标题" extra="额外内容" thumb="https://i.loli.net/2017/08/21/599a521472424.jpg" @tap="login">
+    <view slot="content">内容不错</view>
+    <view slot="footer">尾部内容</view>
+  </i-card>
+  <i-button>{{token}}</i-button>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import api from '@/common/api';
+  import { connect } from 'wepy-redux';
+  import { SET_TOKEN } from '../store/types';
+
+  @connect({
+    token(state) {
+      return state.counter.token;
+    }
+  },{
+    set_token:SET_TOKEN
+    }
+  )
+  export default class Mine extends wepy.component {
+    components = {};
+    data = {};
+    methods = {
+
+    };
+    events = {};
+    async login() {
+      let res = await api.login({ username: 'admin', password: '123456' });
+      this.methods.set_token({token:res.access_token})
+    }
+    onLoad() {
+      this.login();
+    }
+  }
+</script>

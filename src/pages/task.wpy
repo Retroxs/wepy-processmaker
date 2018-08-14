@@ -1,0 +1,138 @@
+<style lang="less" type="text/less" scoped>
+
+</style>
+
+<template>
+  <view class="content">
+    <view wx:for="{{form}}" wx:key="{{form.id}}">
+      <!-- <i-panel wx:if="{{item[0].type == 'title' }}" title="{{item[0].label}}"></i-panel>
+      <i-panel wx:elif="{{item[0].type == 'subtitle' }}" title="{{item[0].label}}"></i-panel>
+      <i-input wx:elif="{{item[0].type == 'text'}}" name="{{item[0].variable}}" title="{{item[0].label}}"
+               value="{{item[0].data.value}}" disabled></i-input>
+      <button wx:else></button> -->
+
+      <text wx:if="{{item.type == 'title' }}">{{item.label}}</text>
+      <text wx:elif="{{item.type == 'subtitle' }}">{{item.label}}</text>
+      <text wx:elif="{{item.type == 'label' }}">{{item.label}}</text>
+      <i-input wx:elif="{{item.type == 'text'}}" type="text" placeholder="{{item.placeholder}}" value="{{item.data.value}}" title="{{item.label}}" disabled></i-input>
+      <i-input wx:elif="{{item.type == 'textarea'}}" type="textarea" placeholder="{{item.placeholder}}" value="{{item.data.value}}" title="{{item.label}}" disabled></i-input>
+      <i-input wx:elif="{{item.type == 'suggest'}}" type="text" placeholder="{{item.placeholder}}" value="{{item.data.value}}" title="{{item.label}}" disabled></i-input>
+
+      <view wx:elif="{{item.type == 'hidden'}}" style="border-top:1px solid #000000"></view>
+
+      <!-- 链接 -->
+      <view class="form-picker form-link" wx:elif="{{item.type == 'link'}}">
+        <view>&#x3000;{{item.label}}：</view><navigator url="out" class="link-text">{{item.value}}</navigator>
+      </view>
+
+      <!-- 图片 -->
+      <view class="form-picker" wx:elif="{{item.type == 'image'}}">
+        &#x3000;{{item.label}}：<image style="width: 6rem; height: 6rem" mode="aspectFit" src="{{item.src}}"></image>
+      </view>
+
+      <!-- 方框 -->
+      <view class="form-panel" wx:elif="{{item.type == 'panel'}}" style="border:{{item.border}} solid rgb(204, 204, 204)">
+        {{item.content}}
+      </view>
+
+      <!-- 选择器 -->
+      <picker wx:elif="{{item.type == 'dropdown'}}" bindchange="bindPickerChange({{item}})" name="{{item.variable}}" value="{{item.data.value}}" range="{{item.options}}" range-key="label">
+        <view class="form-picker">
+          &#x3000;{{item.label}}：{{item.options[item.data.value].label}}
+        </view>
+      </picker>
+
+
+      <!-- 多选框 -->
+      <view wx:elif="{{item.type == 'checkgroup'}}" style="margin:0.5rem 0">
+        &#x3000;<label class="form-title">{{item.label}}</label>
+        <checkbox-group name="{{item.variable}}">
+          <view wx:for="{{item.options}}" wx:for-item="itemGroup" wx:key="{{itemGroup.value}}" style="padding:0.2rem 2rem">
+            <checkbox value="{{itemGroup.value}}" checked="{{item.data.value[index]}}" disabled/>{{itemGroup.label}}
+          </view>
+        </checkbox-group>
+      </view>
+
+      <!-- 单选框 -->
+      <view wx:elif="{{item.type == 'radio'}}" style="margin:0.5rem 0">
+        &#x3000;<label class="form-title">{{item.label}}</label>
+        <radio-group name="{{item.variable}}">
+          <view wx:for-items="{{item.options}}" wx:for-item="itemGroup" wx:key="{{itemGroup.value}}" style="padding:0.2rem 2rem">
+            <radio value="{{itemGroup.value}}" checked="{{item.data.value == itemGroup.value}}" disabled>
+              <text>{{itemGroup.label}}</text>
+            </radio>
+          </view>
+        </radio-group>
+      </view>
+
+      <!-- 日期选择器 -->
+      <picker wx:elif="{{item.type == 'datetime'}}" mode="date" start="{{item.minDate}}" end="{{item.maxDate}}" bindchange="bindDateChange" value="{{item.data.value}}" disabled name="{{item.variable}}">
+        <view class="form-picker">
+          &#x3000;{{item.label}}：{{item.data.value}}
+        </view>
+      </picker>
+
+      <button wx:elif="{{item.type == 'button' }}" class="i-btn i-btn-small i-btn-success i-btn-circle" style="background:#2d8cf0" type="success" size="small" disabled>
+        {{item.label}}
+      </button>
+
+    </view>
+    <i-button open-type="share" type="success" size="small">分享</i-button>
+    <i-button bindtap="targetIndex" type="success" size="small">返回首页</i-button>
+  </view>
+
+
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import api from '@/common/api'
+
+  export default class Task extends wepy.page {
+    config = {
+      usingComponents: {
+        'i-input': '../components/iview/input/index',
+        'i-button': '../components/iview/button/index',
+      }
+    };
+    components = {};
+    props = {};
+    data = {
+      form:[]
+    };
+    methods = {};
+    events = {};
+
+
+    async fetchForm(kase){
+      let caseId = kase.caseId;
+      let processId = kase.process.processId;
+      let taskId = kase.task.taskId;
+      let res = await api.fetchTaskDetail({processId,taskId});
+      let app_index = kase.delIndex;
+      let step_pos = res[0].stepPosition;
+      let stepId = res[0].stepId;
+      let formId = res[0].formId;
+      await api.fetchNextStep(caseId,{processId,taskId,stepId,step_pos,app_index});
+      let res1 = await api.fetchForm({processId,formId,caseId,delIndex:app_index});
+      for (let n = 0; n < res1.formContent.items[0].items.length; n++) {
+        for (
+          let i = 0;
+          i < res1.formContent.items[0].items[n].length;
+          i++
+        ) {
+          if (res1.formContent.items[0].items[n][i].id) {
+            this.form.push(res1.formContent.items[0].items[n][i]);
+          }
+        }
+      }
+      this.$apply();
+    }
+
+    onLoad(options) {
+      let kase = JSON.parse(options.kase);
+      this.fetchForm(kase)
+
+    }
+  }
+</script>
