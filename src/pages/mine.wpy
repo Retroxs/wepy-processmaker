@@ -20,7 +20,7 @@
     set_token:SET_TOKEN
     }
   )
-  export default class Mine extends wepy.component {
+  export default class Mine extends wepy.page {
     components = {};
     data = {};
     methods = {

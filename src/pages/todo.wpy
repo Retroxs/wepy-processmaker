@@ -1,0 +1,110 @@
+<template>
+  <view class="container">
+    <scroll-view class="scroll-view" scroll-y>
+      <view wx:if="{{hasData}}">
+        <view wx:for="{{taskList}}" wx:key="{{item.caseId}}" class="zf-card">
+          <i-card title="{{item.caseTitle}}" extra="{{item.caseNumber}}" @tap="handleClick({{item}})">
+            <view slot="content" style="white-space:pre-wrap">{{item.process.name}}-{{item.task.name}}\n{{item.date}}
+            </view>
+            <view slot="footer">{{item.prevUser.fullName}}</view>
+          </i-card>
+        </view>
+      </view>
+      <view wx:else>
+        <i-load-more tip="暂无数据" loading="{{ false }}"/>
+      </view>
+    </scroll-view>
+
+    <!--<i-tab-bar current="{{ current }}" bindchange="handleChange" fixed>-->
+      <!--<i-tab-bar-item key="mail" icon="mail" current-icon="mail_fill" title="收件箱"-->
+                      <!--count="{{counters.toDo}}"></i-tab-bar-item>-->
+      <!--<i-tab-bar-item key="activity" icon="activity" current-icon="activity_fill" title="待领取"-->
+                      <!--count="{{counters.unassigned}}"></i-tab-bar-item>-->
+      <!--<i-tab-bar-item key="remind" icon="remind" current-icon="remind_fill" title="参与"-->
+                      <!--count="{{counters.participated}}"></i-tab-bar-item>-->
+      <!--<i-tab-bar-item key="mine" icon="mine" current-icon="mine_fill" title="个人中心" dot></i-tab-bar-item>-->
+    <!--</i-tab-bar>-->
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+
+  import api from '@/common/api';
+
+  export default class Todo extends wepy.page {
+    config = {
+      usingComponents: {
+        'i-tab-bar': '../components/iview/tab-bar/index',
+        'i-tab-bar-item': '../components/iview/tab-bar-item/index',
+        'i-card': '../components/iview/card/index',
+        'i-button': '../components/iview/button/index',
+        'i-load-more': '../components/iview/load-more/index'
+      }
+    };
+    data = {
+      taskList: [],
+      current: 'mail',
+      counters: {}
+    };
+
+    computed = {
+      hasData() {
+        if (this.taskList && this.taskList.length === 0) return false;
+        else return true;
+      }
+    };
+
+    methods = {
+      async handleClick(kase) {
+        let options = JSON.stringify(kase);
+        wepy.navigateTo({
+          url: 'task?kase=' + options
+        });
+      },
+      handleChange({ detail }) {
+        this.current = detail.key;
+        switch (detail.key) {
+          case 'mail':
+            wepy.navigateTo({
+              url: 'todo'
+            });
+            break;
+          case 'activity':
+            wepy.navigateTo({
+              url: 'unassigned'
+            });
+            break;
+          case 'remind':
+            wepy.navigateTo({
+              url: 'participated'
+            });
+            break;
+        }
+      }
+      };
+
+    async fetchCounters() {
+      let res = await api.fetchCounters();
+      this.counters = res;
+      this.$apply();
+    };
+
+    async fetchTaskList() {
+      let taskList = await api.fetchTodoList();
+      this.taskList = taskList;
+      this.$apply();
+    };
+
+    onLoad() {
+      this.fetchCounters();
+      this.fetchTaskList();
+    }
+
+    onShow(){
+      this.fetchCounters();
+      this.fetchTaskList();
+    }
+  }
+</script>
+

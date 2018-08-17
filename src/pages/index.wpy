@@ -1,74 +1,6 @@
-<template>
-  <view class="container">
-    <scroll-view class="scroll-view" scroll-y>
-      <view wx:if="{{current === 'mail'}}">
-        <todo></todo>
-      </view>
-      <view wx:elif="{{current === 'activity'}}">
-        <unassigned></unassigned>
-      </view>
-      <view wx:elif="{{current === 'remind'}}">
-        <participated></participated>
-      </view>
-      <view wx:elif="{{current === 'mine'}}">
-        <mine></mine>
-      </view>
-    </scroll-view>
-
-    <i-tab-bar current="{{ current }}" bindchange="handleChange" fixed>
-      <i-tab-bar-item key="mail" icon="mail" current-icon="mail_fill" title="收件箱"
-                      count="{{counters.toDo}}"></i-tab-bar-item>
-      <i-tab-bar-item key="activity" icon="activity" current-icon="activity_fill" title="待领取"
-                      count="{{counters.unassigned}}"></i-tab-bar-item>
-      <i-tab-bar-item key="remind" icon="remind" current-icon="remind_fill" title="参与"
-                      count="{{counters.participated}}"></i-tab-bar-item>
-      <i-tab-bar-item key="mine" icon="mine" current-icon="mine_fill" title="个人中心" dot></i-tab-bar-item>
-    </i-tab-bar>
-  </view>
-</template>
-
 <script>
   import wepy from 'wepy';
-  import Todo from '@/components/todo';
-  import Unassigned from '@/components/unassigned';
-  import Participated from '@/components/participated';
-  import Mine from '@/components/mine';
-
-  import api from '@/common/api';
-
-  import { connect } from 'wepy-redux';
-  import { fetchTodolist, fetchDraftlist, fetchParticipatedlist, fetchUnassignedlist } from '../store/actions';
-
-  @connect({}, {
-      fetchTodo: fetchTodolist,
-      fetchDraft: fetchDraftlist,
-      fetchParticipated: fetchParticipatedlist,
-      fetchUnassigned: fetchUnassignedlist
-    }
-  )
   export default class Index extends wepy.page {
-    config = {
-      usingComponents: {
-        'i-tab-bar': '../components/iview/tab-bar/index',
-        'i-tab-bar-item': '../components/iview/tab-bar-item/index',
-        'i-card': '../components/iview/card/index',
-        'i-button': '../components/iview/button/index',
-        'i-load-more': '../components/iview/load-more/index'
-      }
-    };
-
-    components = {
-      todo: Todo,
-      unassigned: Unassigned,
-      participated: Participated,
-      mine: Mine
-    };
-
-    data = {
-      current: 'mine',
-      counters: {}
-    };
-
     async onPullDownRefresh() {
       let current = this.current;
       if (current === 'mail') {
@@ -84,38 +16,5 @@
         wepy.stopPullDownRefresh();
       }
     }
-
-    async fetchCounters() {
-      let res = await api.fetchCounters();
-      this.counters = res;
-      this.$apply();
-    }
-
-    methods = {
-      handleChange({ detail }) {
-        this.current = detail.key;
-        switch (detail.key) {
-          case 'mail':
-            this.methods.fetchTodo();
-            break;
-          case 'activity':
-            this.methods.fetchUnassigned();
-            break;
-          case 'remind':
-            this.methods.fetchParticipated();
-            break;
-        }
-      }
-    };
-
-    onLoad() {
-      this.fetchCounters();
-    }
   }
 </script>
-
-<style>
-  .scroll-view {
-    height: calc(100% - 70px);
-  }
-</style>

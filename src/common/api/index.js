@@ -104,5 +104,18 @@ export default {
    */
   fetchForm({processId,formId,caseId,delIndex}){
     return request.get(`${prefix}/project/${processId}/dynaformprocessed/${formId}?app_uid=${caseId}&del_index=${delIndex}`)
+  },
+
+
+  updateForm({caseId,dyn_uid,del_index,data}){
+    return request.put(`${prefix}/${caseId}/variable?dyn_uid=${dyn_uid}&del_index=${del_index}`,{...data})
+  },
+
+  fetchAssignment({taskId,caseId,del_index}){
+    return request.get(`${prefix}/task/${taskId}/case/${caseId}/${del_index}/assignment`)
+  },
+
+  routeCase(caseId){
+    return request.put(`${prefix}/cases/${caseId}/route-case`)
   }
 }
