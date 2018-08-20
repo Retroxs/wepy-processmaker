@@ -34,6 +34,7 @@
         'pages/todo',
         'pages/participated',
         'pages/unassigned',
+        'pages/mine',
         'pages/task'
       ],
       window: {
@@ -57,7 +58,7 @@
             text: '参与'
           },
           {
-            pagePath: 'pages/participated',
+            pagePath: 'pages/mine',
             text: '个人中心'
           }
         ]

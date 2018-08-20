@@ -1,6 +1,5 @@
 <template>
   <view class="container">
-    <scroll-view class="scroll-view" scroll-y>
       <view wx:if="{{hasData}}">
         <view wx:for="{{taskList}}" wx:key="{{item.caseId}}" class="zf-card">
           <i-card title="{{item.caseTitle}}" extra="{{item.caseNumber}}" @tap="handleClick({{item}})">
@@ -13,7 +12,6 @@
       <view wx:else>
         <i-load-more tip="暂无数据" loading="{{ false }}"/>
       </view>
-    </scroll-view>
 
     <!--<i-tab-bar current="{{ current }}" bindchange="handleChange" fixed>-->
       <!--<i-tab-bar-item key="mail" icon="mail" current-icon="mail_fill" title="收件箱"-->
@@ -53,6 +51,10 @@
         else return true;
       }
     };
+    async onPullDownRefresh() {
+      await this.fetchTaskList();
+      wepy.stopPullDownRefresh();
+    }
     methods = {
       async handleClick(kase) {
         let options = JSON.stringify(kase);
@@ -95,8 +97,6 @@
     };
 
     onLoad() {
-      this.fetchCounters();
-      this.fetchTaskList();
     }
 
 
